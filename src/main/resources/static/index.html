@@ -1,0 +1,425 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Book Issue Management System</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">📚</div>
+                <div class="brand-text">
+                    <h2>LibSphere</h2>
+                    <span>Issue Management</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="books">
+                    <span class="icon">📖</span>
+                    <span>Book Catalog</span>
+                </button>
+                <button class="nav-item" data-tab="members">
+                    <span class="icon">👥</span>
+                    <span>Members</span>
+                </button>
+                <button class="nav-item" data-tab="issues">
+                    <span class="icon">🔄</span>
+                    <span>Issue & Return</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="system-status-text">Server Connected</span>
+                </div>
+                <small class="version-label">Java 21 • JDBC • MySQL</small>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h1 id="current-page-title">Dashboard Overview</h1>
+                    <p id="current-page-subtitle">Welcome to your central library management system</p>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-secondary" onclick="openModal('addMemberModal')">+ Add Member</button>
+                    <button class="btn btn-secondary" onclick="openModal('addBookModal')">+ Add Book</button>
+                    <button class="btn btn-primary" onclick="openIssueModal()">⚡ Issue Book</button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- TAB 1: DASHBOARD -->
+                <section id="tab-dashboard" class="tab-pane active">
+                    <div class="stats-grid">
+                        <div class="stat-card card-blue">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-details">
+                                <span class="stat-label">Total Inventory</span>
+                                <h3 id="stat-total-books" class="stat-value">--</h3>
+                                <span class="stat-desc" id="stat-unique-titles">0 titles registered</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card card-green">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-details">
+                                <span class="stat-label">Available Copies</span>
+                                <h3 id="stat-available-books" class="stat-value">--</h3>
+                                <span class="stat-desc">Ready to be issued</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card card-purple">
+                            <div class="stat-icon">📖</div>
+                            <div class="stat-details">
+                                <span class="stat-label">Currently Issued</span>
+                                <h3 id="stat-active-issues" class="stat-value">--</h3>
+                                <span class="stat-desc">Books currently borrowed</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card card-amber">
+                            <div class="stat-icon">⚠️</div>
+                            <div class="stat-details">
+                                <span class="stat-label">Overdue Books</span>
+                                <h3 id="stat-overdue-issues" class="stat-value">--</h3>
+                                <span class="stat-desc">Pending return penalty</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-panels">
+                        <!-- Recent Issues Panel -->
+                        <div class="panel">
+                            <div class="panel-header">
+                                <h3>Recent Issue Transactions</h3>
+                                <button class="btn-link" onclick="switchTab('issues')">View All →</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Book Title</th>
+                                            <th>Member</th>
+                                            <th>Issue Date</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-issues-table-body">
+                                        <tr><td colspan="5" class="text-center text-muted">Loading data...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- System Status & Quick Guide Panel -->
+                        <div class="panel info-panel">
+                            <div class="panel-header">
+                                <h3>Getting Started Guide</h3>
+                            </div>
+                            <div class="guide-steps">
+                                <div class="step-item">
+                                    <span class="step-num">1</span>
+                                    <div>
+                                        <strong>Verify MySQL Connection</strong>
+                                        <p>Make sure MySQL service is running and credentials match <code>application.properties</code>.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">2</span>
+                                    <div>
+                                        <strong>Manage Books & Members</strong>
+                                        <p>Add new books to the catalog or register student/faculty members.</p>
+                                    </div>
+                                </div>
+                                <div class="step-item">
+                                    <span class="step-num">3</span>
+                                    <div>
+                                        <strong>Issue & Collect Books</strong>
+                                        <p>Click "Issue Book" to lend a copy. Real-time stock automatically decrements!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 2: BOOKS CATALOG -->
+                <section id="tab-books" class="tab-pane">
+                    <div class="panel">
+                        <div class="panel-controls">
+                            <div class="search-box">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="book-search-input" placeholder="Search by title, author, category, or ISBN..." oninput="handleBookSearch()">
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-primary" onclick="openModal('addBookModal')">+ Add New Book</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>ISBN</th>
+                                        <th>Title</th>
+                                        <th>Author</th>
+                                        <th>Category</th>
+                                        <th>Total</th>
+                                        <th>Available</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="books-table-body">
+                                    <tr><td colspan="9" class="text-center">Loading books...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: MEMBERS -->
+                <section id="tab-members" class="tab-pane">
+                    <div class="panel">
+                        <div class="panel-controls">
+                            <div class="search-box">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="member-search-input" placeholder="Search by member name, email, or code..." oninput="handleMemberSearch()">
+                            </div>
+                            <div class="actions">
+                                <button class="btn btn-primary" onclick="openModal('addMemberModal')">+ Register Member</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Member Code</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Joined Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="members-table-body">
+                                    <tr><td colspan="8" class="text-center">Loading members...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: ISSUE & RETURN -->
+                <section id="tab-issues" class="tab-pane">
+                    <div class="panel">
+                        <div class="panel-controls">
+                            <div class="filter-pills">
+                                <button class="filter-pill active" onclick="filterIssues('ALL', this)">All Records</button>
+                                <button class="filter-pill" onclick="filterIssues('ISSUED', this)">Currently Issued</button>
+                                <button class="filter-pill" onclick="filterIssues('OVERDUE', this)">Overdue Only</button>
+                                <button class="filter-pill" onclick="filterIssues('RETURNED', this)">Returned</button>
+                            </div>
+                            <button class="btn btn-primary" onclick="openIssueModal()">⚡ New Issue</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Tx ID</th>
+                                        <th>Book</th>
+                                        <th>Member</th>
+                                        <th>Issue Date</th>
+                                        <th>Due Date</th>
+                                        <th>Return Date</th>
+                                        <th>Fine ($)</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="issues-table-body">
+                                    <tr><td colspan="9" class="text-center">Loading issues...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: ADD BOOK -->
+    <div id="addBookModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Add New Book to Catalog</h3>
+                <button class="modal-close" onclick="closeModal('addBookModal')">&times;</button>
+            </div>
+            <form id="addBookForm" onsubmit="submitAddBook(event)">
+                <div class="form-group">
+                    <label>Book Title *</label>
+                    <input type="text" id="book-title" required placeholder="e.g. Clean Code">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Author *</label>
+                        <input type="text" id="book-author" required placeholder="e.g. Robert C. Martin">
+                    </div>
+                    <div class="form-group">
+                        <label>ISBN *</label>
+                        <input type="text" id="book-isbn" required placeholder="e.g. 978-0132350884">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <input type="text" id="book-category" required placeholder="e.g. Software Engineering">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Copies *</label>
+                        <input type="number" id="book-copies" required min="1" value="3">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addBookModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MEMBER -->
+    <div id="addMemberModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Register Library Member</h3>
+                <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
+            </div>
+            <form id="addMemberForm" onsubmit="submitAddMember(event)">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="member-name" required placeholder="e.g. Alice Smith">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="member-email" required placeholder="e.g. alice@example.com">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="member-phone" placeholder="e.g. 9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label>Member Code (Optional)</label>
+                        <input type="text" id="member-code" placeholder="Leave blank to auto-generate">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addMemberModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ISSUE BOOK -->
+    <div id="issueBookModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Issue Book to Member</h3>
+                <button class="modal-close" onclick="closeModal('issueBookModal')">&times;</button>
+            </div>
+            <form id="issueBookForm" onsubmit="submitIssueBook(event)">
+                <div class="form-group">
+                    <label>Select Book *</label>
+                    <select id="issue-book-select" required>
+                        <option value="">-- Choose a book --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Member *</label>
+                    <select id="issue-member-select" required>
+                        <option value="">-- Choose a member --</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Borrow Period (Days)</label>
+                        <select id="issue-period-select">
+                            <option value="7">7 Days</option>
+                            <option value="14" selected>14 Days (Standard)</option>
+                            <option value="21">21 Days</option>
+                            <option value="30">30 Days</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (Optional)</label>
+                        <input type="text" id="issue-notes" placeholder="e.g. Exam prep, Reference">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('issueBookModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm Issue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: RETURN BOOK -->
+    <div id="returnBookModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Return Book</h3>
+                <button class="modal-close" onclick="closeModal('returnBookModal')">&times;</button>
+            </div>
+            <div class="return-details-box">
+                <p><strong>Book:</strong> <span id="return-book-title">--</span></p>
+                <p><strong>Borrowed By:</strong> <span id="return-member-name">--</span></p>
+                <p><strong>Due Date:</strong> <span id="return-due-date">--</span></p>
+                <div id="overdue-banner" class="alert-box" style="display:none;">
+                    ⚠️ This book is <strong id="return-days-overdue">0</strong> days overdue!
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Fine Amount ($)</label>
+                    <input type="number" id="return-fine-input" step="0.5" min="0" value="0.00">
+                    <small class="text-muted">Standard rate: $2.00 per overdue day</small>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <input type="hidden" id="return-issue-id">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('returnBookModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmReturnBook()">Complete Return</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
